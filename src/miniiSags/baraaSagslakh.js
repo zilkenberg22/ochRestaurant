@@ -1,28 +1,73 @@
 
-import React, {useRef, useMemo, useCallback} from 'react'
-import { View, StyleSheet, ScrollView, Image, Dimensions, TouchableOpacity, Text } from "react-native";
+import React, {useRef, useMemo, useState, useEffect } from 'react'
+import { View, StyleSheet, ScrollView, Image, Dimensions, TouchableOpacity } from "react-native";
 import CustomStatusBar from "../components/statusBar";
 import TextUtga from "../components/textUtga";
 import IconSimple from 'react-native-vector-icons/SimpleLineIcons';  
+import IconMaterial from 'react-native-vector-icons/MaterialCommunityIcons';  
 import { useRouter, Link } from "expo-router"; 
 import TooComponent from "../components/tooComponent";
 import ModalComponent from "../components/modalComponent"; 
 import BarCodeScanners from "../components/barCodeScanner";
 import RBSheet from "react-native-raw-bottom-sheet";
+import { axs_kholbolt, formatNumber, sagsniiMedeelelAvya, sagsruuNemye } from '../components';
+import { songosonButeegdekhuunSagsnaasUstgay } from '../components/shigtgee';
 
 export default function BaraaSagslakh() {
   const router = useRouter()  
+  const [barimt, setBarimt] = useState({
+    baraanuud: [],
+    sagsMedeelel:{}
+  })
   const bottomSheetRef = useRef(null);
 
   // variables
   const snapPoints = useMemo(() => ["25%"], []);
 
   function handlePresentModalPress() {
-    bottomSheetRef.current.open()
+    // bottomSheetRef.current.open()
+    let param = {
+        barimt:{
+            baiguullagiinKhoch: "5254914",
+            shireeniiDugaar: 15,
+            khereglegchiinUtas: "88045424",
+            niitDun: 120000,
+            tuluv:1,
+            zakhialgiinDugaar: '15515'
+        },
+        barimtiinZadargaa: barimt.baraanuud
+    }
+    axs_kholbolt('api/zakhialgaBurtguulye', param).then(khariu =>{
+        console.log("zakhailgaBurtguulye", khariu)
+    })
   }
+
+  
 
   function qrKhariu(khariu) {
         console.log(khariu) 
+  }
+
+  useEffect(()=>
+  {
+    barimt.baraanuud = sagsniiMedeelelAvya().baraanuud
+    barimt.sagsMedeelel = sagsniiMedeelelAvya()
+    setBarimt({...barimt})
+  }, [])
+
+  function soligdsonTooAvya(too, turul, ugugdul) {
+    sagsruuNemye(ugugdul, turul)
+    barimt.sagsMedeelel = sagsniiMedeelelAvya()
+    setBarimt({...barimt})
+  }
+
+  function utsgay(ugugdul) { 
+    let index = barimt.baraanuud.findIndex(a=> a.baarKodniiKhoch === ugugdul.baarKodniiKhoch)
+    if (index > -1)
+        barimt.baraanuud.splice(index, 1)
+    songosonButeegdekhuunSagsnaasUstgay(ugugdul) 
+    barimt.sagsMedeelel = sagsniiMedeelelAvya()
+    setBarimt({...barimt})
   }
 
   return (
@@ -36,8 +81,9 @@ export default function BaraaSagslakh() {
         </View> 
         <ScrollView style = {{flex:1, paddingHorizontal:15, marginVertical: 25}}>
                 <TextUtga style = {{fontSize: 16, fontWeight:'bold', marginBottom: 8}}>Бүтээгдэхүүн</TextUtga>
-                {[1,2,1].map((ugugdul, muriinDugaar)=>
-                    <TouchableOpacity 
+                {barimt.baraanuud.map((ugugdul, muriinDugaar)=>
+                    <View 
+                        key={muriinDugaar}
                         style = {styles.zadargaa} 
                         //onPress = {()=> router.push("/buteegdekhuunDelgerengui")}
                         >
@@ -45,16 +91,23 @@ export default function BaraaSagslakh() {
                             style={styles.logo}
                             source={require('../../zurag/yuna.jpg')}
                         />
-                        <View>
+                        <View style = {{position:'relative'}}>
                             <View style = {{paddingHorizontal: 15, paddingVertical:10}}>
-                                <TextUtga style = {{fontWeight: '400', fontSize: 17}}>Тахиатай шөл</TextUtga>
-                                <TextUtga style = {{fontWeight: 'bold', fontSize: 18}}>15,000₮</TextUtga>
+                            <TouchableOpacity style = {{position:'absolute', top: 5, right:5}} 
+                                onPress = {()=> utsgay(ugugdul)}>
+                                <IconMaterial name='delete-circle' size={25} color = "#f66"/> 
+                            </TouchableOpacity>
+                                <TextUtga style = {{fontWeight: '400', fontSize: 17}}>{ugugdul.baarKodniiNer}</TextUtga>
+                                <TextUtga style = {{fontWeight: 'bold', fontSize: 18}}>{ugugdul.une}₮</TextUtga>
                             </View>
                             <View style = {{flexDirection:'row', alignItems:'center', width: Dimensions.get('screen').width - 190, justifyContent:'flex-end', marginTop: 8}}>
-                                <TooComponent />
+                                <TooComponent 
+                                    baraaToo = {ugugdul.too}
+                                    soligdsonTooAvya = {(too, turul)=> soligdsonTooAvya(too, turul, ugugdul)}
+                                />
                             </View>
                         </View>
-                    </TouchableOpacity>
+                    </View>
                 )} 
                 <View style = {{marginTop: 15}}>
                     <TextUtga style = {{fontSize: 16, fontWeight:'bold', marginBottom: 8}}>НӨАТ барим</TextUtga>
@@ -103,7 +156,7 @@ export default function BaraaSagslakh() {
         </RBSheet>
         <View style = {{backgroundColor:'white', height: 50, marginBottom: 25, alignItems:'center', justifyContent:'flex-end'}}>
             <TouchableOpacity onPress={()=> handlePresentModalPress()} style = {styles.switch}>
-                <TextUtga style = {{color:'white', fontSize: 18, fontWeight:'bold'}}>30,000₮</TextUtga>
+                <TextUtga style = {{color:'white', fontSize: 18, fontWeight:'bold'}}>{formatNumber(barimt.sagsMedeelel.niitDun)}₮</TextUtga>
                 <TextUtga style = {{color:'white', fontSize: 18, fontWeight:'bold'}}>Үргэлжлүүлэх</TextUtga>
             </TouchableOpacity> 
         </View> 
@@ -160,7 +213,7 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.1,
         shadowRadius: 2, 
         marginTop: 5,
-        height:98
+        height:105
       },
     container: {
         flex: 1, 

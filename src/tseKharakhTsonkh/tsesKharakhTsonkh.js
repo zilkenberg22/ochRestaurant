@@ -1,15 +1,61 @@
+
+import React, { useEffect, useState } from 'react'
 import { View, StyleSheet, ScrollView, Image, Dimensions, TouchableOpacity } from "react-native";
 import CustomStatusBar from "../components/statusBar";
 import TextUtga from "../components/textUtga";
 import IconSimple from 'react-native-vector-icons/SimpleLineIcons'; 
 import IconMaterial from 'react-native-vector-icons/MaterialCommunityIcons'; 
-import { useRouter, Link } from "expo-router";
-import { useSearchParams } from "expo-router";
+import { useRouter, Link, useLocalSearchParams, useSearchParams } from "expo-router";
+import { axs_kholbolt, formatNumber, isNullOrUndefined, sagsniiMedeelelAvya, sagsruuNemye } from '../components';
+import _ from 'lodash'
 
 export default function TsesKharakhTsonkh() {
   const router = useRouter()
-  const { user, extra } = useSearchParams();
-  console.log(user, extra, router)
+  const songosonBaiguullaga = useSearchParams(); 
+  const [tsesState, setTsesState] = useState({
+    bulegTsesKharuulakh: [],
+    sagsMedeelel: {}
+  })
+    useEffect(()=>{
+        menuJagsaaltAvya()
+    }, [songosonBaiguullaga]) 
+ 
+
+    function khuudasSergeekh() {
+        setTsesState({...tsesState})
+    }
+
+    function menuJagsaaltAvya() 
+    {
+        axs_kholbolt('api/menuJagsaaltAvya', {baiguullagiinKhoch: songosonBaiguullaga?.baiguullagiinKhoch}).then(khariu=>{
+            let jagsaalt = _.groupBy(khariu, 'baraaniiBulgiinKhoch')
+            let tmpJagsaalt = []
+            if (!isNullOrUndefined(jagsaalt)){
+                Object.keys(jagsaalt).forEach(a=> {
+                    let object = {bulgiinNer: a, zadargaa: []}
+                    jagsaalt[a].forEach(b=> {
+                        object.zadargaa.push(b)
+                    })
+                    tmpJagsaalt.push(object)
+                })
+                console.log("tmpJagsaalt----", tmpJagsaalt)
+            }
+            tsesState.sagsMedeelel = sagsniiMedeelelAvya()
+            tsesState.bulegTsesKharuulakh = tmpJagsaalt
+            khuudasSergeekh() 
+        })
+    }
+
+    function buteegdekhuunDelgerengui(ugugdul) {
+        // router.push("/buteegdekhuunDelgerengui")
+    }
+
+    function sagsruuNemekh(ugugdul) {
+        sagsruuNemye(ugugdul, 'nemekh')
+        tsesState.sagsMedeelel = sagsniiMedeelelAvya()  
+        setTsesState({...tsesState})
+    }
+
   return (
     <View style={styles.container}>
         <CustomStatusBar/>
@@ -17,9 +63,9 @@ export default function TsesKharakhTsonkh() {
             <TouchableOpacity onPress={()=> router.back()}>
               <IconSimple name="arrow-left" size={18}/>
            </TouchableOpacity>
-            <TextUtga style = {styles.headerText}>Берлин зоог багшийн дээд</TextUtga>
+            <TextUtga style = {styles.headerText}>{songosonBaiguullaga?.baiguullagiinNer}</TextUtga>
         </View>
-        <ScrollView style = {{flex:1}}>
+        <ScrollView style = {{flex:0.9, marginBottom: 15}}>
             <View style ={styles.location}>
               <View>
                 <View style = {{flexDirection:'row', alignItems:'center'}}>
@@ -36,29 +82,37 @@ export default function TsesKharakhTsonkh() {
                 <TextUtga style = {{fontSize:14, fontWeight:'400'}}>19:00 цаг хүртэл</TextUtga>
               </View>
             </View>
-            <View style = {{flex:1, paddingHorizontal: 10, paddingVertical:10}}>
+            <View style = {{flex:1, paddingHorizontal: 8}}>
               {
-                [{bulegNer: 'Үндсэн цэс', baraa:[{}]},
-                  {bulegNer: 'Онцлох хоол', baraa:[{}]},
-                  {bulegNer: 'Пицца', baraa:[{}]},
-                  {bulegNer: 'Тахиатай хоол', baraa:[{}]}
-                ].map((ugugdul)=>
-                  <View style = {{marginTop:5, marginBottom: 5}}>
-                    <TextUtga style = {{textTransform: 'uppercase', fontWeight:'700', fontSize: 15, marginBottom: 15}}>{ugugdul.bulegNer}</TextUtga>
+                tsesState.bulegTsesKharuulakh.map((ugugdul, muriinDugaar)=>
+                  <View style = {{flexDirection:'column'}} key={muriinDugaar}>
+                    <TextUtga style = {{textTransform: 'uppercase', fontWeight:'700', fontSize: 15, marginBottom: 15, marginTop: 15}}>{ugugdul.bulgiinNer}</TextUtga>
                     {
-                      ugugdul.baraa.map(zadargaa=>
-                        <TouchableOpacity 
-                          style = {styles.zadargaa} 
-                          onPress = {()=> router.push("/buteegdekhuunDelgerengui")}>
-                          <Image
-                              style={styles.logo}
-                              source={require('../../zurag/yuna.jpg')}
-                          />
-                          <View style = {{paddingHorizontal: 15, paddingVertical:10}}>
-                            <TextUtga style = {{fontWeight: '400', fontSize: 17}}>Тахиатай шөл</TextUtga>
-                            <TextUtga style = {{fontWeight: 'bold', fontSize: 18}}>15,000₮</TextUtga>
-                          </View>
-                        </TouchableOpacity>
+                      ugugdul.zadargaa.map((muriinZadargaa,muriinDugaar1)=>
+                        <View 
+                          key={muriinDugaar1}
+                          style = {[styles.zadargaa, {backgroundColor: muriinZadargaa.garakhBolomjtoiEsekh ? 'red': 'white'}]} 
+                        >
+                            
+                          <TouchableOpacity
+                            onPress = {()=> buteegdekhuunDelgerengui(muriinDugaar)}
+                          >
+                            <Image
+                                style={styles.logo}
+                                source={require('../../zurag/yuna.jpg')}
+                            />
+                          </TouchableOpacity>
+                          <TouchableOpacity 
+                            onPress = {()=> buteegdekhuunDelgerengui(muriinDugaar)}
+                            style = {{paddingHorizontal: 8, marginTop:5, height: 75, flex:1}}
+                          >
+                            <TextUtga ellipsizeMode='tail' numberOfLines={2}  style = {styles.textNer}>{`${muriinZadargaa.baarKodniiNer}`}</TextUtga>
+                            <TextUtga style = {{fontWeight: 'bold', fontSize: 18}}>{formatNumber(muriinZadargaa.une)}₮</TextUtga>
+                          </TouchableOpacity>
+                          <TouchableOpacity style = {styles.plus} onPress = {()=> sagsruuNemekh(muriinZadargaa)}>
+                            <IconMaterial name="plus-circle-outline" size={25} color = "#3a8d82"/>
+                          </TouchableOpacity>
+                        </View>
                       )
                     }
                   </View>
@@ -66,16 +120,18 @@ export default function TsesKharakhTsonkh() {
               }
             </View>
         </ScrollView>
-        <Link href={`/sagslakh`}  asChild>
-          <TouchableOpacity style = {styles.switch}>
-              <View>
-                <TextUtga style = {{color:'white', fontSize: 18, fontWeight:'bold'}}>1 ширхэг - 42,000</TextUtga>
-              </View>
-              <View>
-                <TextUtga style = {{color:'white', fontSize: 18, fontWeight:'bold'}}>Харах</TextUtga>
-              </View>
-          </TouchableOpacity>
-        </Link>
+        <View style = {{flex: 0.1, alignItems:'center', flexDirection:'row', backgroundColor:'white', justifyContent:'center'}}>
+            <Link href={`/sagslakh`}  asChild>
+                <TouchableOpacity style = {styles.switch}>
+                    <View>
+                        <TextUtga style = {{color:'white', fontSize: 18, fontWeight:'bold'}}>{tsesState.sagsMedeelel.too} ширхэг - {formatNumber(tsesState.sagsMedeelel.niitDun)+"₮"}</TextUtga>
+                    </View>
+                    <View>
+                        <TextUtga style = {{color:'white', fontSize: 18, fontWeight:'bold'}}>Харах</TextUtga>
+                    </View>
+                </TouchableOpacity>
+            </Link>
+        </View>
     </View>
   );
 }
@@ -84,18 +140,27 @@ const styles = StyleSheet.create({
       flex: 1, 
       backgroundColor: 'white', 
     },   
+    plus:{
+        position:'absolute',
+        right: 15,
+        bottom:5,
+    },
+    textNer:{
+        fontWeight: '400', 
+        fontSize: 17,
+        textTransform:'uppercase',
+        flexWrap:'wrap-reverse'
+    },
     switch:{
       flexDirection:'row',  
-      height: 45,
+      height: 50, 
+      marginBottom: 25,
       borderRadius: 8,
       width: Dimensions.get('screen').width - 75,
       backgroundColor:'#f66',
       alignItems:'center',
       paddingHorizontal: 8,
-      justifyContent:'space-between',
-      position:'absolute',
-      bottom:25,
-      left:35,
+      justifyContent:'space-between',   
       shadowColor: '#171717',
       shadowOffset: {width: -2, height: 4},
       shadowOpacity: 0.1,
@@ -104,6 +169,7 @@ const styles = StyleSheet.create({
     zadargaa:{ 
       flexDirection:'row',
       borderWidth:1,
+      position:'relative',
       borderRadius:10, 
       borderColor:'#ededed',
       shadowColor: '#171717',
@@ -111,6 +177,7 @@ const styles = StyleSheet.create({
       shadowOpacity: 0.1,
       shadowRadius: 2,
       marginLeft:18,
+      marginTop: 8
     },
     logo: {
       width: Dimensions.get('screen').width-210,

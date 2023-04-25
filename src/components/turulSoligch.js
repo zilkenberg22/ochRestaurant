@@ -6,9 +6,10 @@ export default function TurulSoligch(props) {
     return (
         <View style = {styles.switch}>
             {
-                jagsaalt.map((ugugdul)=>
+                jagsaalt.map((ugugdul, muriinDugaar)=>
                 { 
                     return(<TouchableOpacity 
+                            key={muriinDugaar}
                             style = {[ugugdul.ner === jagsaalt[0].ner ? styles.btn1 : styles.btn2,
                             {
                                 backgroundColor: state.turul == ugugdul.ner ? "#f66" : 'white',

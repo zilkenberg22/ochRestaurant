@@ -4,7 +4,7 @@ import axiosCancel from "axios-cancel";
 import {isArray,isObject} from 'lodash'
 
 axiosCancel(axios)
-var serveriinMedeelel = "localhost:3000";
+var serveriinMedeelel = "192.168.100.47:8000";
 
 export const axs_kholbolt = (uilchilgeeniiNer, damjuulakhUtga, fileTokhirgoo, khuleekhKhugatsaa) => {
     return new Promise(function (resolve, reject) {
@@ -29,14 +29,16 @@ const axs_kholboltEkhluulekh = (uilchilgeeniiNer, damjuulakhUtga, fileTokhirgoo,
 
     if (objectEsekh(fileTokhirgoo)) option = { ...option, ...fileTokhirgoo };
     
-    if (param === null || param === undefined || param === "") param = " "; 
-    axios.post(baseURL, isString || fileTokhirgoo == true ? param : JSON.stringify(param), option)
+    if (damjuulakhUtga === null || damjuulakhUtga === undefined || damjuulakhUtga === "") damjuulakhUtga = " "; 
+    console.log('damjuulakhUtga', damjuulakhUtga)
+    axios.post(baseURL, isString || fileTokhirgoo == true ? damjuulakhUtga : JSON.stringify(damjuulakhUtga), option)
     .then((response) => { 
-        resolve(response.data); 
+        console.log('response======>', response)
+        resolve(response.data.data); 
     })
     .catch((error) => {
         let aldaa = !isNullOrUndefined(error.response?.data?.aldaa) ? error.response?.data?.aldaa : error.response?.data?.error
-        console.log('aldaa', aldaa)
+        alert(JSON.stringify(aldaa)+"aldaa")
     });
 };
 
@@ -46,4 +48,19 @@ export function objectEsekh(value) {
 
 export function isNullOrUndefined(value) {
     return value === null || value === undefined
+}
+
+export const formatNumber = (num) => {
+    if(num === undefined) return '0';
+    if(num === null && num === '') return '';
+    var fixedNum = Number(num).toFixed(2).toString()
+    var numSplit = fixedNum.split(".");
+    if(numSplit === null || numSplit.length === 0){
+        return "0";
+    }     
+    var firstFormatNum = numSplit[0].toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')
+    if(numSplit.length > 1 && Number(numSplit[1]) > 0){
+        firstFormatNum = firstFormatNum + '.' + numSplit[1];
+    }
+    return firstFormatNum;
 }

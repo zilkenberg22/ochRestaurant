@@ -1,17 +1,26 @@
+import React, { useContext } from 'react'
 import {StyleSheet, View, Dimensions, Image, TouchableOpacity, ScrollView } from 'react-native'
 import Icon from 'react-native-vector-icons/Octicons';
 import IconMaterial from 'react-native-vector-icons/MaterialCommunityIcons';
 import TextUtga from '../components/textUtga';
-import { useRouter } from 'expo-router';
+import { useRouter, useNavigation } from 'expo-router';
+import { EkhlelCntx } from './ekhlel';
 
 export default function BaiguullagiinJagsaalt(props) 
 {
     const router = useRouter()
+    const navigate = useNavigation()
+    const ekhlelCntx = useContext(EkhlelCntx)
     return (
         <ScrollView>
         {
-          [1,2,3,3,4,4,4,4,4].map((ugugdul, muriinDugaar) =>{
-            return (<TouchableOpacity style = {styles.card} onPress = {()=> router.push('/tsesKharakh')}>
+          ekhlelCntx.state.jagsaaltKharuulakh.map((ugugdul, muriinDugaar) =>{
+            return ( 
+            <TouchableOpacity key={muriinDugaar} 
+                    style = {styles.card}  
+                    onPress = {()=> navigate.navigate('tsesKharakh', ugugdul)}
+                    // onPress = {()=> router.push({pathname:'/tsesKharakh', params: ugugdul})}
+                    >
                 <Image
                       style={styles.logo}
                       source={require('../../zurag/yuna.jpg')}
@@ -20,7 +29,7 @@ export default function BaiguullagiinJagsaalt(props)
                       <View style = {{flexDirection:'row', alignContent:'center', justifyContent:'flex-start'}}>
                           <View style = {{flex:0.8, flexDirection:'row'}}>
                               <Icon name = "organization" color={'#505050'} size={19} />
-                              <TextUtga style = {styles.orgName}>Түмэн төв Tumen tuv</TextUtga> 
+                              <TextUtga style = {styles.orgName}>{ugugdul.baiguullagiinNer}</TextUtga> 
                           </View>
                           <View style = {{flex:0.2, flexDirection:'row'}}>
                               <IconMaterial name = "map-marker-distance" color={'#f66'} size={19} />
@@ -29,7 +38,7 @@ export default function BaiguullagiinJagsaalt(props)
                       </View>
                       <View style = {{flexDirection:'row', alignContent:'center', justifyContent:'flex-start', marginTop:6}}> 
                           <Icon name = "location" color={'#505050'} size={19} />
-                          <TextUtga style = {styles.location}>СБД, 1-р хороо, Түмэн төв</TextUtga>
+                          <TextUtga style = {styles.location}>{ugugdul.khayag}</TextUtga>
                       </View> 
                   </View>
           </TouchableOpacity>)

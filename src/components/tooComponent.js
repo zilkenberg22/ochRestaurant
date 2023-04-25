@@ -1,9 +1,10 @@
 import React, { useState } from 'react'
 import { View, TouchableOpacity, StyleSheet } from 'react-native'
-import IconMaterial from 'react-native-vector-icons/MaterialCommunityIcons'; 
+import IconMaterial from 'react-native-vector-icons/AntDesign'; 
 import TextUtga from './textUtga';
 export default function TooComponent(props) {
-    const [too, setToo] = useState(1)
+    const { baraaToo = 1} = props
+    const [too, setToo] = useState(baraaToo)
 
     function solikhToo(turul) {
         let tooUtga = too
@@ -19,20 +20,20 @@ export default function TooComponent(props) {
             setToo(tooUtga)
         }
         if (props.soligdsonTooAvya)
-            props.soligdsonTooAvya(tooUtga)
+            props.soligdsonTooAvya(tooUtga, turul)
     }
     return (
         <View style = {styles.root}>
             <TouchableOpacity style = {styles.btn1} 
                 onPress = {()=> solikhToo('khasakh')}>
-                <IconMaterial name="plus" size={18}/>
+                <IconMaterial name="minuscircleo" style = {{color:'#107266'}} size={21}/>
             </TouchableOpacity>
             <View style = {styles.too}>
-                <TextUtga style = {{fontSize:16, fontWeight:'bold'}}>{too}</TextUtga>
+                <TextUtga style = {{fontSize:18, fontWeight:'500'}}>{too}</TextUtga>
             </View>
             <TouchableOpacity style = {styles.btn2} 
                 onPress = {()=> solikhToo('nemekh')}>
-                <IconMaterial name="plus" size={18}/>
+                <IconMaterial style = {{color:'#107266'}} name="pluscircleo" size={21}/>
             </TouchableOpacity>
         </View>
     )
@@ -40,17 +41,17 @@ export default function TooComponent(props) {
 
 const styles = StyleSheet.create({
     root:{
-        width: 115, 
+        width: 85, 
         flexDirection:'row',
         alignItems:'center',
-        borderWidth:1,
-        borderColor:'#cecece',
+        //borderWidth:1,
+        //borderColor:'#cecece',
         borderRadius: 5,
         alignItems:'center',
         justifyContent:'center'
     },
     too:{
-        width: 45,
+        width: 25,
         alignItems:'center',
         justifyContent:'center'
     },
@@ -58,18 +59,18 @@ const styles = StyleSheet.create({
     {
         flex:1,
         height: 25, 
-        borderRightWidth:1,
+        //borderRightWidth:1, 
         alignItems:'center',
         justifyContent:'center',
-        borderColor:'#cecece',
+        //borderColor:'#cecece',
     },
     btn2:
     { 
         flex:1,
         height: 25, 
-        borderLeftWidth:1,
+        //borderLeftWidth:1,
         alignItems:'center',
         justifyContent:'center', 
-        borderColor:'#cecece',
+        //borderColor:'#cecece',
     }
   });

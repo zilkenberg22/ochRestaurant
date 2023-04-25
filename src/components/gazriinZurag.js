@@ -1,28 +1,52 @@
-import React, { useState } from 'react'
-import {Dimensions, StyleSheet} from 'react-native'
-import MapView, {Callout, Marker} from 'react-native-maps';
-
-const { width, height } = Dimensions.get('window')
-const ASPECT_RATIO = width / height
-const LATITUDE_DELTA = 0.030 //0.005 //
-const LONGITUDE_DELTA = LATITUDE_DELTA * ASPECT_RATIO
+import React, { useEffect, useRef } from 'react'
+import {Dimensions, StyleSheet, Animated } from 'react-native'
+import MapView from 'react-native-maps'; 
 
 export default function GazriinZurag(props) 
 {
-    const [region, setRegion] = useState({
-        latitude: 47.912783059062605,
-        longitude: 106.91387778148055,
-        latitudeDelta: LATITUDE_DELTA,
-        longitudeDelta: LONGITUDE_DELTA
-    })
-    return (<MapView 
-        mapType="standard"
-        style={styles.map}
-        region={region}
-        // onRegionChangeComplete={(r) => onRegionChange(r)}
-    >
-       {props.children}
-    </MapView>)
+    const mapAnimation = useRef(new Animated.Value(0)).current; 
+
+    const animateMap = () => {
+        Animated.timing(mapAnimation, {
+            toValue: 1,
+            duration: 900,
+            useNativeDriver: true,
+        }).start();
+    };
+    
+    useEffect(()=> {
+        animateMap() 
+    }, [])
+
+
+    const mapStyle = {
+        transform: [
+            {
+            translateY: mapAnimation.interpolate({
+                inputRange: [0, 1],
+                outputRange: [500, 0],
+            }),
+            },
+        ],
+    };
+    
+    return (
+        <Animated.View style = {[styles. mapContainer, mapStyle]}>
+            <MapView 
+                {...props}
+                mapType="none"
+                style={styles.map}
+                region={props.region} 
+                followsUserLocation={true}
+                showsCompass={true} 
+                zoomEnabled={true}
+                pitchEnabled={true}
+                rotateEnabled={true}
+            // onRegionChangeComplete={(r) => onRegionChange(r)}
+            >
+                {props.children}
+            </MapView>
+        </Animated.View>)
 }
 
 const styles = StyleSheet.create({
@@ -37,6 +61,14 @@ const styles = StyleSheet.create({
   
       elevation: 10,
   }, 
+  mapContainer: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: Dimensions.get('screen').height - 89,
+    overflow: 'hidden',
+  },
     map: {
         ...StyleSheet.absoluteFillObject,
     },

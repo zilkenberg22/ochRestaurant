@@ -1,7 +1,7 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect, createContext } from 'react';
 import { 
   StyleSheet,
-  ScrollView,
+  Dimensions,
   View
 } from 'react-native';
 import CustomStatusBar from '../components/statusBar';
@@ -10,11 +10,51 @@ import BaiguullagiinJagsaalt from './baiguullagiinJagsaalt';
 import GazriinZuragKharakh from './gazriinZuragKharakh';
 import TurulSoligch from '../components/turulSoligch';
 import IconSimple from 'react-native-vector-icons/SimpleLineIcons';
+import {axs_kholbolt} from '../components/'
+import { bairshilAvya, uuriinBairshilAvakh } from '../components/bairshilAvya';
 
+global.buteegdekhuunSags = []
+export const EkhlelCntx = createContext({})
+
+const { width, height } = Dimensions.get('window')
+const ASPECT_RATIO = width / height
+const LATITUDE_DELTA = 0.030 //0.005 //
+const LONGITUDE_DELTA = LATITUDE_DELTA * ASPECT_RATIO
+
+let ankhniiUtga = {
+    latitude: 47.912783059062605,
+    longitude: 106.91387778148055,
+    latitudeDelta: LATITUDE_DELTA,
+    longitudeDelta: LONGITUDE_DELTA
+}
 const Ekhlel = (props) => { 
   const [state, setState] = useState({
-    turul: 'Жагсаалт'
+    turul: 'Жагсаалт',
+    jagsaaltKharuulakh: [],
+    miniiBairshil: undefined, 
   })
+
+  const [bvsNutag, setBvsNutag] = useState(ankhniiUtga)
+
+  useEffect(()=> 
+  {
+    bairshlaarBaiguullagaAvya()
+  }, [])
+
+  function bairshlaarBaiguullagaAvya() {
+    uuriinBairshilAvakh().then(bairshil =>
+    { 
+        axs_kholbolt('api/restauraniiJagsaaltAvya', {lat: bairshil.latitude, lon: bairshil.longitude})
+        .then(khariu=>
+        { 
+            console.log('restauraniiJagsaaltAvya', khariu)
+            state.jagsaaltKharuulakh = khariu
+            state.miniiBairshil = bairshil
+            khuudasSergeekh()
+        })
+    })  
+  }
+  
 
   function khuudasSergeekh() {
     setState({...state})
@@ -22,10 +62,17 @@ const Ekhlel = (props) => {
 
   function turulSolikh(turul) {
     state.turul = turul
-    khuudasSergeekh()
+    bairshlaarBaiguullagaAvya()
   }
 
   return (
+    <EkhlelCntx.Provider 
+        value={{
+            state,
+            bvsNutag, 
+            setBvsNutag,
+            khuudasSergeekh
+        }}>
       <View style={styles.container}>
           <CustomStatusBar />
           <View style = {styles.header}>
@@ -61,6 +108,7 @@ const Ekhlel = (props) => {
             /> 
           </View>
       </View>
+    </EkhlelCntx.Provider>
   );
 };
 
