@@ -62,7 +62,6 @@ export default function BaraaSagslakh() {
   }
 
   function utsgay(ugugdul) { 
-    console.log(ugugdul)
     let index = barimt.baraanuud.findIndex(a=> a.baarKodniiKhoch === ugugdul.baarKodniiKhoch)
     if (index > -1)
         barimt.baraanuud.splice(index, 1)
